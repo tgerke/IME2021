@@ -1,0 +1,433 @@
+\documentclass{beamer}
+
+% reduce size of title
+\setbeamerfont{frametitle}{size=\normalsize}
+
+% to color fonts with \textcolor
+\usepackage{color} 
+    
+% make a command for gray sub-items and continued subitems
+\newcommand{\si}[1]{\hspace{.5cm} \textcolor{gray} {#1}\\}
+\newcommand{\sicont}[1]{\hspace{1cm} \textcolor{gray} {#1}\\}
+
+% hyperref + a generic link with purple coloring
+\usepackage{hyperref}
+\newcommand{\cref}[1]{\href{#1}{[\textcolor{purple}{link}]}}
+\newcommand{\creftext}[2]{\href{#1}{[\textcolor{purple}{#2}]}}
+
+% permit absolute textblock positioning
+% can use showboxes option to see where textblocks are sitting
+\usepackage[absolute,overlay]{textpos}
+
+%remove navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+%%%
+% for blockquotes with a citation
+\usepackage{tikz}
+\usetikzlibrary{backgrounds}
+\makeatletter
+\tikzset{%
+  fancy quotes/.style={
+    text width=\fq@width pt,
+    align=justify,
+    inner sep=1em,
+    anchor=north west,
+    minimum width=\linewidth,
+  },
+  fancy quotes width/.initial={.8\linewidth},
+  fancy quotes marks/.style={
+    scale=8,
+    text=white,
+    inner sep=0pt,
+  },
+  fancy quotes opening/.style={
+    fancy quotes marks,
+  },
+  fancy quotes closing/.style={
+    fancy quotes marks,
+  },
+  fancy quotes background/.style={
+    show background rectangle,
+    inner frame xsep=0pt,
+    background rectangle/.style={
+      fill=gray!25,
+      rounded corners,
+    },
+  }
+}
+\newenvironment{fancyquotes}[1][]{%
+\noindent
+\tikzpicture[fancy quotes background]
+\node[fancy quotes opening,anchor=north west] (fq@ul) at (0,0) {``};
+\tikz@scan@one@point\pgfutil@firstofone(fq@ul.east)
+\pgfmathsetmacro{\fq@width}{\linewidth - 2*\pgf@x}
+\node[fancy quotes,#1] (fq@txt) at (fq@ul.north west) \bgroup}
+{\egroup;
+\node[overlay,fancy quotes closing,anchor=east] at (fq@txt.south east) {''};
+\endtikzpicture}
+\makeatother
+%%%
+
+\begin{document}
+
+%% Title Page
+\begin{frame}
+
+\begin{textblock}{13.5}[.5,.5](8,8)
+\centering
+\normalsize{Publicly available genomics and `omics resources:\\
+Beyond DNA}
+\end{textblock}
+
+\begin{textblock}{6}(9,12.7)
+\begin{flushright}
+\scriptsize{Travis Gerke, ScD}\\
+\tiny{Director of Data Science, PCCTC}\\
+\tiny{gerket@mskcc.org}\\
+\includegraphics[scale=.02, trim=0 1cm 0 3.5cm, clip]{figures/Twitter_Logo_Blue.png}\tiny{\href{https://twitter.com/travisgerke}{@travisgerke}}\\
+\end{flushright}
+\end{textblock}
+
+\begin{textblock}{6}(1,13.8)
+\tiny{AACR IME Workshop\\July 27, 2021\\}
+\end{textblock}
+
+\begin{textblock}{6}(9,0)
+\begin{flushright}
+\includegraphics[width=2.2cm, trim=0 0 0 0]{figures/PCCTClogoCMYK.eps}
+\end{flushright}
+\end{textblock}
+
+\begin{textblock}{2}(1,.6)
+\centering
+\includegraphics[scale=.02, trim=0 1cm 0 3.5cm, clip]{figures/Twitter_Logo_Blue.png}\\
+\scriptsize{\#AACRMolEpi}
+\end{textblock}
+
+\end{frame}
+
+\small{
+
+\begin{frame}[t]
+\frametitle{'Omics resources we're going to explore}
+1. The Cancer Genome Atlas\\
+\vspace{.1cm}
+2. The Genotype-Tissue Expression project (GTEx)\\
+\vspace{.1cm}
+3. Gene Expression Omnibus (GEO)\\
+\vspace{.1cm}
+4. Molecular Signatures Database (MSigDB)\\
+\vspace{.2cm}
+\begin{center}
+\includegraphics[scale=.2, trim=0 0 0 0]{figures/gtex-tcga.jpg}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{The Cancer Genome Atlas (TCGA)}
+Purpose: characterize the molecular landscape of primary cancers\\
+\si{Joint project of NCI and NHGRI ($>\$400$ million investment)}
+\si{Samples collected at 20 institutions across US/Canada 2006--2013}
+\si{Data generation and analysis continued through 2017}
+\si{Data made rapidly available to the public for research use}
+\begin{center}
+\includegraphics[scale=.5, trim=1cm 0 0 .5cm]{figures/tcganumbers.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{The 7 TCGA data types (in tumor + matched normal tissue)}
+1. Whole exome sequence: protein-coding segments of DNA\\
+\vspace{.1cm}
+2. mRNA sequence: quantify transcript/gene expression\\
+\vspace{.1cm}
+3. microRNA sequence: small RNAs that regulate gene expression\\
+\vspace{.1cm}
+4. DNA copy number profile: how often sections of the genome repeat\\
+\vspace{.1cm}
+5. DNA methylation profile: chemical additions to DNA that regulate\\
+\hspace{.5cm} gene expression\\
+\vspace{.1cm}
+6. Whole genome sequence: coding and non-coding DNA sequence\\
+\vspace{.1cm}
+7. RPPA expression profile: quantify protein expression\\
+\vspace{.1cm}
+\begin{center}
+\includegraphics[scale=.44, trim=1cm 0 0 .5cm]{figures/centraldogmaRevised.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Bioinformatic insights gained through TCGA can't be overstated}
+Over the past 10 years, disease-specific working groups have molecularly\\
+\hspace{.5cm} characterized each cancer \creftext{https://www.cancer.gov/about-nci/organization/ccg/research/structural-genomics/tcga/publications}{publication list}\\
+\si{General theme of each paper: create taxonomy of molecular subtypes}
+\si{Important details about collection/QC also appear in each}
+\si{Advice: \emph{read the publication(s) for your cancer site of interest!}}
+\vspace{.2cm}
+With conclusion of TCGA, Pan-Cancer series published in 2018 
+\begin{textblock}{6}(13.5,6)
+\includegraphics[scale=.08, trim=0 0 0 0]{figures/cellcover.jpg}
+\end{textblock}
+\begin{center}
+\includegraphics[scale=.4, trim=3cm 0 0 .5cm]{figures/pcasubtypes.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{The comprehensiveness of TCGA can feel overwhelming}
+By comparison, scope/impact of your grant ideas may seem insignificant\\
+\si{But wait!}
+\si{Notice that one of the 7 data types was not ``clinical''}
+\vspace{.2cm}
+\begin{fancyquotes}
+Obtaining comprehensive clinical annotation was neither a primary program objective nor a practical possibility, given the worldwide scope and severe time constraints for sample accrual goals determined at the time of TCGA program initiation and funding. 
+\vspace{-.2cm}
+\begin{flushright}
+{\tiny -- Liu et al. Cell (2018)}
+\end{flushright}
+\end{fancyquotes}
+
+\vspace{.2cm}
+Wide-open area: leverage molecular understanding from TCGA to guide\\
+\hspace{.5cm} clinical/epidemiologic investigations\\
+\si{Advice: in grants/manuscripts, point out how TCGA may provide}
+\sicont{preliminary evidence but is unable to fully answer your}
+\sicont{translational question (or use TCGA as validation data)}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Getting to work: interrogating TCGA data}
+cBioPortal \cref{http://www.cbioportal.org/} is an extremely well-written (i.e.~fast) application for\\
+\hspace{.5cm} querying/visualizing genomic data (``Google for cancer genomics'')\\
+\si{It is most commonly used to analyze TCGA data in a web browser}
+\si{The browser hosts $>$250 cancer studies (not just TCGA)}
+\si{For hackers: you can put your own data in cBio \cref{http://www.cbioportal.org/visualize}}
+\begin{center}
+\includegraphics[scale=.24, trim=3cm 0 0 1.4cm]{figures/cbiodata.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through cBioPortal: landing page}
+Select studies, molecular profiles, and \emph{genes} to query\\
+\si{Important: read the TCGA papers to understand difference between}
+\sicont{provisional/published/pan-cancer versions (often QC-driven)}
+\begin{center}
+\includegraphics[scale=.28, trim=3cm 0 0 0]{figures/landing.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through cBioPortal: basic query}
+Each tab is rich with info and visualizations\\
+\si{Note: the genomic profiles you select on the landing page determine}
+\sicont{how many patients have ``altered'' genes}
+\si{E.g.~I picked mutations + CNVs, but could also have selected mRNA}
+\begin{center}
+\includegraphics[scale=.37, trim=2cm 0 0 0]{figures/query.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through cBioPortal: mutual exclusivity}
+Among all pairwise combinations of your genes, tells you how likely\\
+\hspace{.5cm} alterations are to occur together/exclusively\\
+\begin{center}
+\includegraphics[scale=.37, trim=2cm 0 0 0]{figures/mutex.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through cBioPortal: plots}
+Very useful: works with genomic and clinical features\\
+\begin{center}
+\includegraphics[scale=.37, trim=2cm 0 0 1cm]{figures/plots.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through cBioPortal: mutations}
+Tells you the frequency and mutation details (somatic vs germline,\\
+\hspace{.5cm} nonsense, etc)\\
+\si{Note: synonymous mutations are not reported}
+\begin{center}
+\includegraphics[scale=.35, trim=2cm 0 0 1cm]{figures/mutations.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through cBioPortal: co-expression}
+Shows co-expression with your selected genes\\
+\begin{center}
+\includegraphics[scale=.35, trim=2cm 0 0 1cm]{figures/coexpression.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through cBioPortal: survival}
+Compares survival among gene altered and non-altered patients\\
+\begin{center}
+\includegraphics[scale=.3, trim=2cm 0 0 1cm]{figures/survival2.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through cBioPortal: study summaries}
+Access by clicking the study name wherever you see it\\
+\si{Very useful high-level study summaries}
+\si{Click Clinical Data tab $\rightarrow$ DATA to download all clinical data$^*$}
+\si{Merge with Download tab from gene queries for custom analyses}
+\begin{center}
+\includegraphics[scale=.26, trim=2cm 0 0 .5cm]{figures/summary.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through cBioPortal: patient views}
+Access by clicking a patient ID wherever you see one\\
+\si{Includes detailed summary of mutations + clinical data}
+\begin{center}
+\includegraphics[scale=.26, trim=2cm 0 0 .5cm]{figures/pathreport.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through GDC}
+Sometimes, you just need all of the data (e.g.\ transcriptome-wide studies)\\
+\si{I don't know what the gene \# max is for cBio, but it can get slow}
+\si{Also, analyses/UI within cBio are designed for small \# of genes}
+\vspace{.2cm}
+Genomic Data Commons (GDC) is the official data portal \cref{https://portal.gdc.cancer.gov/}\\
+\begin{center}
+\includegraphics[scale=.23, trim=2cm 0 0 1cm]{figures/gdc.png}
+\end{center}
+%Alternatives/packages for TCGA access do exist if you wish!\\
+%\si{\href{https://cran.r-project.org/web/packages/TCGA2STAT/index.html}{\textcolor{purple}{TCGA2STAT}}, 
+%\href{http://bioconductor.org/packages/release/bioc/html/TCGAbiolinks.html}{\textcolor{purple}{TCGAbiolinks}}, 
+%\href{https://bioconductor.org/packages/release/bioc/html/RTCGAToolbox.html}{\textcolor{purple}{RTCGAToolbox}},
+%\href{https://cran.r-project.org/web/packages/cgdsr/index.html}{\textcolor{purple}{cgdsr}}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{TCGA through GDC: querying}
+In simple cases ($<10,\!000$ files), GDC works like a shopping cart\\
+\begin{center}
+\includegraphics[scale=.23, trim=2cm 1cm 0 1cm]{figures/gdcquery.png}
+\end{center}
+For larger downloads, use the manifest file and Data Transfer Tool \cref{https://docs.gdc.cancer.gov/Data_Transfer_Tool/Users_Guide/Data_Download_and_Upload/}\\
+\si{Additional steps needed for Controlled-Access Data (raw sequence}
+\sicont{data, SNPs, exon array, VCFs, \cref{https://cancergenome.nih.gov/abouttcga/aboutdata/accesstiers})}
+\si{Submit an application (next slide) and get Authentication Token}
+\sicont{using eRA Commons credentials}
+\si{Can do entirely in R with GenomicDataCommons package \cref{https://github.com/Bioconductor/GenomicDataCommons}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Controlled TCGA data access}
+Don't let this extra step deter you!\\
+\si{Go to dbGaP Authorized Access page \cref{https://dbgap.ncbi.nlm.nih.gov/aa/wga.cgi?page=login}}
+\si{Follow the prompts, select the data set as below, write a brief RUS}
+\si{In my experience, approval $\le 2$ weeks}
+\begin{center}
+\includegraphics[scale=.28, trim=2cm 0 0 1cm]{figures/dbgap.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{A final note about TCGA clinical data}
+Be aware of which version/source you use!\\
+\si{Pan-Cancer group released a version with recommendations $_{\text{\tiny{Liu Cell 2018}}}$}
+\si{Often Pan-Cancer $\ne$ Provisional $\ne$ Published  $\ne$ cBio $\ne\cdots$}
+\si{E.g. we previously explored a list of such differences \cref{https://github.com/GerkeLab/TCGAclinical}}
+\begin{center}
+\includegraphics[scale=.25, trim=2cm 0 0 .5cm]{figures/diff.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{The Genotype-Tissue Expression project (GTEx)}
+Data resource to study link between genetic variation and gene\\
+\hspace{.5cm} expression across multiple human tissues \cref{https://www.gtexportal.org/home/}\\
+\si{Rapid autopsy program $>700$ donors $\implies$ $>11,000$ samples}
+\si{\emph{Not} cancer patients}
+\si{Can be useful to inform what genes are expressed in which tissues}
+\sicont{in a ``normal'' state}
+\vspace{.2cm}
+\begin{center}
+\includegraphics[scale=.4, trim=2cm 0 0 1cm]{figures/gtextissue.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{GTEx access}
+Like TCGA, can apply through dbGaP \cref{https://gtexportal.org/home/datasets}\\
+\si{But don't use a hammer to swat a fly!}
+\si{The GTEx web browser \cref{https://gtexportal.org/home/} handles most queries easily}
+\si{Here's an example for BRCA1: \cref{https://gtexportal.org/home/gene/BRCA1}}
+\si{Where it may fall short: trans-eQTLs}
+\begin{center}
+\includegraphics[scale=.34, trim=2cm 0 0 0]{figures/gtex.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Gene Expression Omnibus (GEO) \cref{https://www.ncbi.nlm.nih.gov/geo/}}
+Published studies of high-throughput data are very often publicly available\\
+\si{Typically, funding mechanism/journal required for reproducibility}
+\si{When GEO is most useful: studies with long-term follow-up or}
+\sicont{epidemiologic data (that resources like TCGA/GTEx lack)}
+\vspace{.2cm}
+Using this data requires programming (R/similar), so not covered here\\
+\si{If interested, check out GEOquery for R \cref{https://bioconductor.org/packages/release/bioc/html/GEOquery.html}}
+\si{Alternatively, I often just download the data and import from scratch}
+\si{A typical query: \cref{https://www.ncbi.nlm.nih.gov/gds/?term=prostate+cancer+african+american}}
+\begin{center}
+\includegraphics[scale=.24, trim=2cm 0 0 0]{figures/geo.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Molecular Signatures Database (MSigDB) \cref{http://software.broadinstitute.org/gsea/msigdb/}}
+Rich compendium of annotated gene set collections\\
+\si{Once registered, can use to look at overlaps with your list of genes,}
+\sicont{or generate lists to query in tools like cBioPortal}
+\begin{center}
+\includegraphics[scale=.25, trim=2cm 0 0 0]{figures/msigdb.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{An MSigDB overlap query}
+These are TCGA's top 50 associated genes with BRCA1 in ovarian\\
+\begin{center}
+\includegraphics[scale=.25, trim=2cm 0 0 0]{figures/overlaps1.png}
+\includegraphics[scale=.25, trim=2cm 0 0 0]{figures/overlaps2.png}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Exercise}
+You've got some genes from the earlier exercise in 15q25 (I hope!)\\
+\vspace{.2cm}
+How can TCGA (via cBioPortal) extend your story around the locus?\\
+\si{What are TCGA's limitations for this story?}
+\vspace{.2cm}
+Are you able to identify any datasets in GEO that may help you?\\
+\si{You don't need to download/use it right now, just identify one}
+\vspace{.2cm}
+Bonus: Identify a relevant gene pathway in MSigDB\\
+\vspace{.2cm}
+Bonus: What can you learn from GTEx about this locus/related genes?\\
+\vspace{.2cm}
+What would your next study be?\\
+\si{Give two specific aims}
+%\si{Think \href{https://grants.nih.gov/grants/funding/r21.htm}{\textcolor{purple}{R21}}}
+%\begin{center}
+%\includegraphics[scale=.25, trim=1cm 0 0 .5cm]{figures/r21.png}
+%\end{center}
+\end{frame}
+
+}
+\end{document}
